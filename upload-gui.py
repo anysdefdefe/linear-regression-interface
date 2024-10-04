@@ -1,20 +1,28 @@
-import tkinter as tk
-from tkinter import filedialog
+import curses
 import pandas as pd
 
-def upload_file():
-    file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-    if file_path:
+def main(stdscr):
+    # Clear screen
+    stdscr.clear()
+
+    # Prompt for file path
+    stdscr.addstr(0, 0, "Enter the path of the CSV file: ")
+    curses.echo()  # Enable echoing of typed characters
+    file_path = stdscr.getstr(0, 34).decode("utf-8")  # Get user input
+
+    # Read CSV file
+    try:
         data = pd.read_csv(file_path)
-        print(data)  # Print the data to the console (can be modified to display in the UI)
+        stdscr.addstr(1, 0, "File uploaded successfully!\n")
+        stdscr.addstr(2, 0, "Data preview:\n")
+        stdscr.addstr(3, 0, str(data.head()))  # Display first few rows of the data
+    except Exception as e:
+        stdscr.addstr(1, 0, f"Error: {e}\n")
 
-# Create the main window
-root = tk.Tk()
-root.title("CSV File Upload")
+    stdscr.addstr(4, 0, "Press any key to exit...")
+    stdscr.refresh()
+    stdscr.getch()  # Wait for user input
 
-# Create an upload button
-upload_button = tk.Button(root, text="Upload CSV", command=upload_file)
-upload_button.pack(pady=20)
+# Run the curses application
+curses.wrapper(main)
 
-# Start the Tkinter main loop
-root.mainloop()
